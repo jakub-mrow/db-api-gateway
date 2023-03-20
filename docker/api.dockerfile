@@ -1,12 +1,12 @@
 FROM node:18-alpine
 
 # Create app directory
-WORKDIR /code
+WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY ./src .
 
 EXPOSE 8080

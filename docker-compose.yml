@@ -15,4 +15,4 @@ services:
     hostname: ${APP_CONTAINER_NAME}
     command: npm run dev
     volumes:
-      - .:/code
+      - ./src:/code
