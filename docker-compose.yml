@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: docker/api.dockerfile
+      dockerfile: docker/Dockerfile
     image: db-api-gateway:v1
     env_file:
       - ./.env

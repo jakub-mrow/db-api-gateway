@@ -44,3 +44,12 @@ app.post('/user', async (req, res) => {
     }
 })
 
+app.get("/recipes", async (req, res) => {
+    await pool.connect()
+
+    const query = 'SELECT * FROM recipes';
+    const dbResponse = await pool.query(query);
+
+    res.json(dbResponse.rows);
+})
+
