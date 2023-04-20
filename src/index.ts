@@ -53,3 +53,13 @@ app.get("/recipes", async (req, res) => {
     res.json(dbResponse.rows);
 })
 
+
+app.get("/recipes/:recipeId", async (req, res) => {
+    await pool.connect()
+
+    const query = `SELECT * FROM recipes WHERE id = ${req.params.recipeId}`;
+    const dbResponse = await pool.query(query);
+
+    res.json(dbResponse.rows);
+})
+
