@@ -5,12 +5,14 @@ if [ "$(sudo docker ps -q)" ]; then
     sudo docker stop $(sudo docker ps -q)
 else
     echo "No running containers found"
+fi
 
 if [ "$(sudo docker image ls -q)" ]; then
     echo "Deleting existing images..."
     sudo docker image rm $(sudo docker image ls -q)
 else
     echo "No existing images found"
+fi
 
 echo "Building container"
 sudo docker build -t express-ts -f docker/Dockerfile .
