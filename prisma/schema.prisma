@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model recipes {
+  id           Int    @id @default(autoincrement())
+  title        String @db.VarChar(510)
+  ingredients  String
+  instructions String
+  image_name   String @db.VarChar(510)
+}
+
+model users {
+  id       Int    @id @default(autoincrement())
+  username String @db.VarChar(100)
+  password String @db.VarChar(100)
+}

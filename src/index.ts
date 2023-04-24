@@ -1,8 +1,11 @@
 const express = require('express');
 const pool = require('./dbconfig/db_connector');
 const bodyParser = require('body-parser');
+const { PrismaClient } = require('@prisma/client');
 
 require('dotenv').config()
+
+const prisma = new PrismaClient()
 
 const app = express();
 const PORT = process.env.PORT;
@@ -45,21 +48,20 @@ app.post('/user', async (req, res) => {
 })
 
 app.get("/recipes", async (req, res) => {
-    await pool.connect()
-
-    const query = 'SELECT * FROM recipes';
-    const dbResponse = await pool.query(query);
-
-    res.json(dbResponse.rows);
+    const recipes = await prisma.recipes.findMany({
+        take: 20
+    });
+    res.json(recipes);
 })
 
 
 app.get("/recipes/:recipeId", async (req, res) => {
-    await pool.connect()
+    const recipe = await prisma.recipes.findUnique({
+        where: {
+            id: parseInt(req.params.recipeId)
+        }
+    })
 
-    const query = `SELECT * FROM recipes WHERE id = ${req.params.recipeId}`;
-    const dbResponse = await pool.query(query);
-
-    res.json(dbResponse.rows);
+    res.json(recipe);
 })
 
