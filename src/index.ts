@@ -1,3 +1,5 @@
+import { recipes } from "@prisma/client";
+
 const express = require('express');
 const pool = require('./dbconfig/db_connector');
 const bodyParser = require('body-parser');
@@ -48,7 +50,7 @@ app.post('/user', async (req, res) => {
 })
 
 app.get("/recipes", async (req, res) => {
-    const recipes = await prisma.recipes.findMany({
+    const recipes: recipes[] = await prisma.recipes.findMany({
         take: 20
     });
     res.json(recipes);
@@ -65,3 +67,30 @@ app.get("/recipes/:recipeId", async (req, res) => {
     res.json(recipe);
 })
 
+
+app.get("/cake_recipes", async (req, res) => {
+    const veganRecipes: recipes[] = await prisma.recipes.findMany({
+        take: 20,
+        where: {
+            title: {
+                contains: "Cake"
+            }
+        }
+    })
+
+    res.json(veganRecipes)
+})
+
+
+app.get("/salad_recipes", async (req, res) => {
+    const saladRecipes: recipes[] = await prisma.recipes.findMany({
+        take: 20,
+        where: {
+            title: {
+                contains: "Salad"
+            }
+        }
+    })
+
+    res.json(saladRecipes)
+})
