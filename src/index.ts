@@ -1,9 +1,10 @@
-import { recipes } from "@prisma/client";
+import { recipes, users } from "@prisma/client";
 
 const express = require('express');
 const pool = require('./dbconfig/db_connector');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
 require('dotenv').config()
 
@@ -21,28 +22,57 @@ app.listen(PORT, () => {
 });
 
 
-app.get('/users', async (req, res) => {
-    await pool.connect();
+app.get('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const user = await prisma.users.findFirst({
+            where: {
+                username
+            }
+        })
 
-    const query = 'SELECT * FROM Users';
-    const dbResponse = await pool.query(query);
+        if (!user){
+            return res.status(401).json({message: "Invalid username or password"})
+        }
 
-    res.json(dbResponse.rows);
+        const passwordMatch: boolean = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch){
+            return res.status(401).json({message: "Invalid username or password"});
+        }
+
+        res.json({message: "Login successfull"});
+
+
+    } catch(error){
+        console.error(error);
+        res.status(500).json({message: "Internal server error"})
+    }
 })
 
-app.post('/user', async (req, res) => {
-    try {
-        const username: string = req.body["username"];
-        const password: string = req.body["password"];
+app.post('/register', async (req, res) => {
+    try {   
+        const { username, password } = req.body;
 
-        await pool.connect();
+        const existingUser = await prisma.users.findFirst({
+            where: {
+                username
+            }
+        })
 
-        const query = `INSERT INTO users (username, password) VALUES ('${username}', '${password}');`
-        const dbResponse = await pool.query(query);
-        console.log(dbResponse)
+        if (existingUser){
+            return res.status(409).json({message: "User already exists"})
+        }
 
-        const responseMessage: Object = {msg: "User has been created successfully"}
-        res.status(201).send(responseMessage)
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await prisma.users.create({
+            data: {
+                username,
+                password: hashedPassword
+            }
+        })
+
+        res.json({message: "User registered succesfully"})
         
     } catch (error) {
         res.status(500).send({msg: `Internal server error: ${(error as Error).message}`})
