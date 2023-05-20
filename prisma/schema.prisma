@@ -16,7 +16,31 @@ model recipes {
 }
 
 model users {
-  id       Int    @id @default(autoincrement())
-  username String @db.VarChar(100)
-  password String @db.VarChar(100)
+  id       Int     @id @default(autoincrement())
+  username String  @db.VarChar(100)
+  password String  @db.VarChar(100)
+  events   Event[]
+}
+
+model Event {
+  id           Int    @id @default(autoincrement())
+  title        String @db.VarChar(510)
+  description  String
+  imageUrl     String @db.VarChar(510)
+  fileUrl      String @db.VarChar(510)
+  localization String
+  eventLink    String
+  date         String
+  userId       Int
+  user         users  @relation(fields: [userId], references: [id])
+}
+
+model GeneralEvent {
+  id           Int    @id @default(autoincrement())
+  title        String @db.VarChar(510)
+  description  String @db.VarChar(510)
+  imageUrl     String @db.VarChar(510)
+  localization String
+  eventLink    String
+  date         String
 }

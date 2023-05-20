@@ -1,4 +1,4 @@
-import { recipes, users } from "@prisma/client";
+import { GeneralEvent, recipes, users } from "@prisma/client";
 
 const express = require('express');
 const pool = require('./dbconfig/db_connector');
@@ -123,4 +123,55 @@ app.get("/salad_recipes", async (req, res) => {
     })
 
     res.json(saladRecipes)
+})
+
+
+app.get("/nearby_events", async (req, res) => {
+    const nearbyEvents: GeneralEvent[] = await prisma.GeneralEvent.findMany();
+
+    res.json(nearbyEvents);
+})
+
+
+app.get("/users/:userId/events", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+
+    const user = await prisma.users.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user){
+        return res.status(400).json({message: "User not found"})
+    }
+
+    const userEvents: Event[] = await prisma.Event.findMany({
+        where: {
+            userId: userId
+        },
+    });
+
+    return res.json(userEvents);
+})
+
+
+app.post("/users/:userId/events", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const eventData = req.body;
+
+    const user = await prisma.users.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user){
+        return res.status(400).json({message: "User not found"})
+    }
+    
+    const createdEvent: Event = await prisma.Event.create({
+        data: {
+            ...eventData,
+            userId: userId
+        }
+    })
+
+    res.json(createdEvent)
 })
