@@ -22,7 +22,7 @@ app.listen(PORT, () => {
 });
 
 
-app.get('/login', async (req, res) => {
+app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await prisma.users.findFirst({
@@ -41,7 +41,9 @@ app.get('/login', async (req, res) => {
             return res.status(401).json({message: "Invalid username or password"});
         }
 
-        res.json({message: "Login successfull"});
+        const responseUser = { id: user.id, username: user.username};
+
+        res.json(responseUser);
 
 
     } catch(error){
