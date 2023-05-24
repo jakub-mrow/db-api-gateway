@@ -5,6 +5,9 @@ const pool = require('./dbconfig/db_connector');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const crypto = require('crypto');
+const fileUpload = require("express-fileupload");
 
 require('dotenv').config()
 
@@ -15,6 +18,15 @@ const PORT = process.env.PORT;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(fileUpload());
+
+const s3Client = new S3Client({
+    region: 'eu-central-1',
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  })
 
 
 app.listen(PORT, () => {
@@ -177,3 +189,24 @@ app.post("/users/:userId/events", async (req, res) => {
 
     res.json(createdEvent)
 })
+
+
+const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
+
+app.post('/upload', async (req, res) => {
+    const file = req.files.file;
+
+    const fileName = generateFileName();
+
+    const uploadParams = {
+        Bucket: 'eventsapp-mobile',
+        Body: file.data,
+        Key: fileName,
+        ContentType: file.mimetype
+      }
+
+    await s3Client.send(new PutObjectCommand(uploadParams));
+
+    const imageUrl = `https://eventsapp-mobile.s3.eu-central-1.amazonaws.com/${fileName}`;
+    res.json({ imageUrl });
+  });
