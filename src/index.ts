@@ -147,6 +147,17 @@ app.get("/nearby_events", async (req, res) => {
 })
 
 
+app.post("/nearby_events", async (req, res) => {
+    const nearbyEventData = req.data;
+
+    const newNearbyEvent: GeneralEvent = await prisma.GeneralEvent.create({
+        data: nearbyEventData
+    });
+
+    res.json(newNearbyEvent);
+})
+
+
 app.get("/users/:userId/events", async (req, res) => {
     const userId = parseInt(req.params.userId);
 
