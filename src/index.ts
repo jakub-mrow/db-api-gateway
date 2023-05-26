@@ -47,11 +47,14 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({message: "Invalid username or password"})
         }
 
-        const passwordMatch: boolean = await bcrypt.compare(password, user.password);
-
-        if (!passwordMatch){
-            return res.status(401).json({message: "Invalid username or password"});
-        }
+        bcrypt.compare(password, user.password)
+            .then((result) => {
+                if (result) {
+                    console.log('Password match');
+                } else {
+                    return res.status(401).json({message: "Invalid username or password"});
+                }
+            })
 
         const responseUser = { id: user.id, username: user.username};
 
