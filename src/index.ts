@@ -46,20 +46,20 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({message: "Invalid username or password"})
     }
 
-    bcrypt.compare(password, user.password)
-        .then((result) => {
-            if (result) {
-                console.log('Password match');
-                const responseUser = { id: user.id, username: user.username};
-                res.json(responseUser);
-            } else {
-                return res.status(401).json({message: "Invalid username or password"});
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            return res.status(500).json({ message: "Internal Server Error" });
-            });
+    bcrypt.compare(password, user.password, (error, result) => {
+        if (error) {
+          console.error('Error:', error);
+          res.status(500).json({ message: "Internal Server Error" });
+        } else {
+          if (result) {
+            console.log('Password match');
+            const responseUser = { id: user.id, username: user.username };
+            res.json(responseUser);
+          } else {
+            res.status(401).json({ message: "Invalid username or password" });
+          }
+        }
+      });
 
 })
 
