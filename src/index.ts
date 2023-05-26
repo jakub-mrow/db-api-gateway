@@ -35,36 +35,32 @@ app.listen(PORT, () => {
 
 
 app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await prisma.users.findFirst({
-            where: {
-                username
+    const { username, password } = req.body;
+    const user = await prisma.users.findFirst({
+        where: {
+            username
+        }
+    })
+
+    if (!user){
+        return res.status(401).json({message: "Invalid username or password"})
+    }
+
+    bcrypt.compare(password, user.password)
+        .then((result) => {
+            if (result) {
+                console.log('Password match');
+                const responseUser = { id: user.id, username: user.username};
+                res.json(responseUser);
+            } else {
+                return res.status(401).json({message: "Invalid username or password"});
             }
         })
+        .catch((error) => {
+            console.error('Error:', error);
+            return res.status(500).json({ message: "Internal Server Error" });
+            });
 
-        if (!user){
-            return res.status(401).json({message: "Invalid username or password"})
-        }
-
-        bcrypt.compare(password, user.password)
-            .then((result) => {
-                if (result) {
-                    console.log('Password match');
-                } else {
-                    return res.status(401).json({message: "Invalid username or password"});
-                }
-            })
-
-        const responseUser = { id: user.id, username: user.username};
-
-        res.json(responseUser);
-
-
-    } catch(error){
-        console.error(error);
-        res.status(500).json({message: "Internal server error"})
-    }
 })
 
 app.post('/register', async (req, res) => {
