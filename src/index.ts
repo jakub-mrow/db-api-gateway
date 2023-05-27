@@ -146,6 +146,14 @@ app.get("/nearby_events", async (req, res) => {
 })
 
 
+app.get("/random_event", async (req, res) => {
+    const nearbyEvents: GeneralEvent[] = await prisma.GeneralEvent.findMany();
+    const randomIndex = Math.floor(Math.random() * nearbyEvents.length)
+
+    res.json(nearbyEvents[randomIndex])
+})
+
+
 app.post("/nearby_events", async (req, res) => {
     const nearbyEventData = req.data;
 
