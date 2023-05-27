@@ -212,6 +212,17 @@ app.delete("/events/:eventId", async (req, res) => {
 })
 
 
+app.get("/events/:eventId", async (req, res) => {
+    const eventId = parseInt(req.params.eventId);
+
+    const event = await prisma.Event.findFirst({
+        where: { id: eventId },
+      });
+
+    res.json(event)   
+})
+
+
 const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
 
 app.post('/upload', async (req, res) => {
