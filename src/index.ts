@@ -42,11 +42,24 @@ app.post('/login', async (req, res) => {
         }
     })
 
-    if (user.password === password){
-        res.status(200).json({id: user.id, username: user.username});
-    } else {
-        res.status(401).json({message: "Invalid username or password"});
+    if (!user){
+        return res.status(401).json({message: "Invalid username or password"})
     }
+
+    bcrypt.compare(password, user.password)
+        .then((result) => {
+            if (result) {
+                console.log('Password match');
+                const responseUser = { id: user.id, username: user.username};
+                res.json(responseUser);
+            } else {
+                return res.status(401).json({message: "Invalid username or password"});
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            return res.status(500).json({ message: "Internal Server Error" });
+            });
 
 })
 
@@ -64,11 +77,11 @@ app.post('/register', async (req, res) => {
             return res.status(409).json({message: "User already exists"})
         }
 
-        //const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.users.create({
             data: {
                 username,
-                password: password
+                password: hashedPassword
             }
         })
 
