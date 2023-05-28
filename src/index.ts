@@ -158,7 +158,9 @@ app.post("/nearby_events", async (req, res) => {
     const nearbyEventData = req.data;
 
     const newNearbyEvent: GeneralEvent = await prisma.GeneralEvent.create({
-        data: nearbyEventData
+        data: {
+            ...nearbyEventData
+        }
     });
 
     res.json(newNearbyEvent);
