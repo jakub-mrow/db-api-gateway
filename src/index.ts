@@ -155,7 +155,7 @@ app.get("/random_event", async (req, res) => {
 
 
 app.post("/nearby_events", async (req, res) => {
-    const nearbyEventData = req.data;
+    const nearbyEventData = req.body;
 
     const newNearbyEvent: GeneralEvent = await prisma.GeneralEvent.create({
         data: {
